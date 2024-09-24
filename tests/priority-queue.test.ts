@@ -79,7 +79,7 @@ describe('PriorityQueue', () => {
     );
     const result2 = queue.enqueue(async (x) => x, [2], 2, 'successfulTask');
 
-    await expect(result1).rejects.toThrow('Task failed');
+    expect(result1).rejects.toThrow('Task failed');
     const res2 = await result2;
     expect(res2).toBe(2);
   });
@@ -105,5 +105,61 @@ describe('PriorityQueue', () => {
     expect(result1).rejects.toThrow('Task cancelledTask was cancelled');
 
     expect(await result2).toBe(2);
+  });
+
+  it('should check if a task is queued', async () => {
+    const queue = new PriorityQueue<number>(1);
+    queue.enqueue(async (x) => x, [1], 1, 'task1');
+    const result2 = queue.enqueue(async (x) => x, [2], 2, 'task2');
+
+    expect(queue.isQueued('task2')).toBe(true);
+    expect(queue.isQueued('task1')).toBe(false);
+    expect(queue.isQueued('nonexistent')).toBe(false);
+
+    await result2;
+  });
+
+  it('should check if a task is processing', async () => {
+    const queue = new PriorityQueue<number>(1);
+    const longTask = new Promise<number>((resolve) =>
+      setTimeout(() => resolve(1), 100)
+    );
+    const result1 = queue.enqueue(async () => longTask, [], 1, 'task1');
+    queue.enqueue(async (x) => x, [2], 2, 'task2');
+
+    expect(queue.isProcessing('task1')).toBe(true);
+    expect(queue.isProcessing('task2')).toBe(false);
+    expect(queue.isProcessing('nonexistent')).toBe(false);
+
+    await result1;
+  });
+
+  it('should check if a task is queued or processing', async () => {
+    const queue = new PriorityQueue<number>(1);
+    const longTask = new Promise<number>((resolve) =>
+      setTimeout(() => resolve(1), 100)
+    );
+    const result1 = queue.enqueue(async () => longTask, [], 1, 'task1');
+    queue.enqueue(async (x) => x, [2], 2, 'task2');
+
+    expect(queue.isProcessingOrQueued('task1')).toBe(true);
+    expect(queue.isProcessingOrQueued('task2')).toBe(true);
+    expect(queue.isProcessingOrQueued('nonexistent')).toBe(false);
+
+    await result1;
+  });
+
+  it('should ensure task ids are unique', async () => {
+    const queue = new PriorityQueue<number>(1);
+    queue.enqueue(
+      async () => new Promise((resolve) => setTimeout(() => resolve(1), 1000)),
+      [],
+      1,
+      'task1'
+    );
+
+    const res = queue.enqueue(async (x) => x, [2], 2, 'task1');
+
+    expect(res).rejects.toThrow('Task with id task1 already exists');
   });
 });

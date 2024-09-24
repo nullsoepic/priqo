@@ -10,20 +10,22 @@
 - **Concurrency Control**: You can set the desired concurrency level to control how many tasks are processed simultaneously.
 - **Task Cancellation**: Supports cancelling tasks by their unique IDs.
 - **Error Handling**: Properly handles errors and rejections, ensuring that failed tasks do not block the queue.
+- **Task Status Checking**: Provides methods to check if a task is queued, processing, or both.
+- **Unique Task IDs**: Ensures that each task has a unique identifier for easy management and status checking.
 
 ### Installation
 
 To use `priqo` in your project, install it using your favourite package manager:
 
 ```bash
-bun install priqo
+npm install priqo
 ```
 
 ### Usage
 
 Here is an example of how to use `priqo`:
 
-```typescript
+```ts
 import { PriorityQueue } from 'priqo';
 
 const queue = new PriorityQueue(3); // Create a priority queue with a concurrency of 3
@@ -58,6 +60,11 @@ const result1 = await queue.enqueue(
 );
 
 console.log(result1); // Output: 1
+
+// Check task status
+console.log(queue.isQueued('highPriorityTask')); // true or false
+console.log(queue.isProcessing('longTask')); // true or false
+console.log(queue.isProcessingOrQueued('anotherLongTask')); // true or false
 ```
 
 ### API Documentation
@@ -85,8 +92,23 @@ console.log(result1); // Output: 1
     - Returns whether the queue is empty (both processing and waiting queues).
 
 - **`setConcurrency`**:
+
   - `setConcurrency(size: number): void`
     - Sets the desired concurrency level of the queue.
+
+- **`isQueued`**:
+
+  - `isQueued(id: string): boolean`
+    - Checks if a task with the given ID is currently in the waiting queue.
+
+- **`isProcessing`**:
+
+  - `isProcessing(id: string): boolean`
+    - Checks if a task with the given ID is currently being processed.
+
+- **`isProcessingOrQueued`**:
+  - `isProcessingOrQueued(id: string): boolean`
+    - Checks if a task with the given ID is either in the waiting queue or currently being processed.
 
 ### Testing
 
