@@ -49,4 +49,38 @@ describe('PriorityQueue', () => {
     queue.enqueue(async (x) => x, [1], 1, 'task1');
     expect(queue.isEmpty()).toBe(false);
   });
+
+  it('should process items in order of priority', async () => {
+    const queue = new PriorityQueue<number>(1);
+
+    const result1 = queue.enqueue(async (x) => x, [1], 2, 'task1');
+    const result2 = queue.enqueue(async (x) => x, [2], 1, 'task2');
+    const result3 = queue.enqueue(async (x) => x, [3], 3, 'task3');
+
+    const res1 = await result1;
+    const res2 = await result2;
+    const res3 = await result3;
+
+    expect(res2).toBe(2);
+    expect(res1).toBe(1);
+    expect(res3).toBe(3);
+  });
+
+  it('should handle errors in tasks', async () => {
+    const queue = new PriorityQueue<number>(1);
+
+    const result1 = queue.enqueue(
+      async () => {
+        throw new Error('Task failed');
+      },
+      [],
+      1,
+      'failingTask'
+    );
+    const result2 = queue.enqueue(async (x) => x, [2], 2, 'successfulTask');
+
+    await expect(result1).rejects.toThrow('Task failed');
+    const res2 = await result2;
+    expect(res2).toBe(2);
+  });
 });

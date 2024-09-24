@@ -4,6 +4,7 @@ interface QueueItem<T> {
   priority: number;
   id: string;
   resolve: (value: T | PromiseLike<T>) => void;
+  reject?: (reason?: any) => void; // Add reject method
 }
 
 export class PriorityQueue<T> {
@@ -21,8 +22,8 @@ export class PriorityQueue<T> {
     priority = 0,
     id: string
   ): Promise<T> {
-    return new Promise((resolve) => {
-      const item: QueueItem<T> = { fn, args, priority, id, resolve };
+    return new Promise((resolve, reject) => {
+      const item: QueueItem<T> = { fn, args, priority, id, resolve, reject };
       this.queue.push(item);
       this.queue.sort((a, b) => b.priority - a.priority);
       this.processNextItem();
@@ -36,11 +37,20 @@ export class PriorityQueue<T> {
     ) {
       const item = this.queue.shift()!;
       this.processingQueue.push(item);
-      item.fn(...item.args).then((result) => {
-        item.resolve(result);
-        this.processingQueue = this.processingQueue.filter((i) => i !== item);
-        this.processNextItem();
-      });
+      item
+        .fn(...item.args)
+        .then((result) => {
+          item.resolve(result);
+          this.processingQueue = this.processingQueue.filter((i) => i !== item);
+          this.processNextItem();
+        })
+        .catch((error) => {
+          if (item.reject) {
+            item.reject(error); // Propagate the error to the promise
+          }
+          this.processingQueue = this.processingQueue.filter((i) => i !== item);
+          this.processNextItem();
+        });
     }
   }
 
