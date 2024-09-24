@@ -7,9 +7,10 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "bun build",
+    "build:types": "tsc --project tsconfig.json",
+    "build": "bun build ./src/index.ts --minify --outdir=dist",
     "test": "bun test",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "npm run build:types && npm run build"
   },
   "keywords": [
     "priority-queue",
@@ -17,7 +18,7 @@
     "typescript"
   ],
   "author": "vibing",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/nullsoepic/priqo.git"

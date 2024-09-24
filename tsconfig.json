@@ -11,16 +11,18 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
+
+    // Generate type definitions only
+    "declaration": true,
+    "emitDeclarationOnly": true,
+
+    // Output directory for type definitions
+    "outDir": "dist",
 
     // Best practices
     "strict": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/*"]
 }

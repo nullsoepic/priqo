@@ -10,10 +10,10 @@ interface QueueItem<T> {
 export class PriorityQueue<T> {
   private queue: QueueItem<T>[] = [];
   private processingQueue: QueueItem<T>[] = [];
-  private desiredSize: number;
+  private concurrency: number;
 
-  constructor(desiredSize: number) {
-    this.desiredSize = desiredSize;
+  constructor(concurrency: number) {
+    this.concurrency = concurrency;
   }
 
   enqueue(
@@ -31,7 +31,7 @@ export class PriorityQueue<T> {
 
   private processNextItem() {
     if (
-      this.processingQueue.length < this.desiredSize &&
+      this.processingQueue.length < this.concurrency &&
       this.queue.length > 0
     ) {
       const item = this.queue.shift()!;
@@ -76,8 +76,8 @@ export class PriorityQueue<T> {
     return this.queue.length === 0 && this.processingQueue.length === 0;
   }
 
-  setDesiredSize(size: number) {
-    this.desiredSize = size;
+  setConcurrency(size: number) {
+    this.concurrency = size;
     this.processNextItem();
   }
 }

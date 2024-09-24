@@ -32,7 +32,7 @@ describe('PriorityQueue', () => {
     const queue = new PriorityQueue<number>(1);
 
     queue.enqueue(async (x) => x, [1], 1, 'task1');
-    queue.setDesiredSize(2);
+    queue.setConcurrency(2);
     const result2 = queue.enqueue(async (x) => x, [2], 2, 'task2');
     const result3 = queue.enqueue(async (x) => x, [3], 3, 'task3');
 
