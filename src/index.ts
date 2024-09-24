@@ -54,6 +54,31 @@ export class PriorityQueue<T> {
     }
   }
 
+  cancel(id: string): void {
+    // Cancel task from the queue
+    const queuedItem = this.queue.find((item) => item.id === id);
+    if (queuedItem) {
+      this.queue = this.queue.filter((item) => item.id !== id);
+      queuedItem.reject?.(new Error(`Task ${id} was cancelled`));
+    }
+
+    // Cancel task from the processing queue
+    const processingItem = this.processingQueue.find((item) => item.id === id);
+    if (processingItem) {
+      this.processingQueue = this.processingQueue.filter(
+        (item) => item.id !== id
+      );
+
+      // If the task is already running, we need to abort it.
+      // However, since we can't directly abort a promise in JavaScript,
+      // we'll just reject it and let the caller handle it.
+      processingItem.reject?.(new Error(`Task ${id} was cancelled`));
+
+      // Re-process next item if necessary
+      this.processNextItem();
+    }
+  }
+
   isEmpty(): boolean {
     return this.queue.length === 0 && this.processingQueue.length === 0;
   }

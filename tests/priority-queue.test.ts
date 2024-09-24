@@ -83,4 +83,27 @@ describe('PriorityQueue', () => {
     const res2 = await result2;
     expect(res2).toBe(2);
   });
+
+  it('should allow cancellation of tasks', async () => {
+    const queue = new PriorityQueue<number>(1);
+
+    const longRunningTask = new Promise<number>((resolve) => {
+      setTimeout(() => resolve(1), 2000);
+    });
+
+    const result1 = queue.enqueue(
+      async () => longRunningTask,
+      [],
+      1,
+      'cancelledTask'
+    );
+    const result2 = queue.enqueue(async (x) => x, [2], 2, 'simpleTask');
+
+    // Ensure cancellation happens immediately after enqueuing
+    queue.cancel('cancelledTask');
+
+    expect(result1).rejects.toThrow('Task cancelledTask was cancelled');
+
+    expect(await result2).toBe(2);
+  });
 });
