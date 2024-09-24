@@ -64,8 +64,8 @@ console.log(result1); // Output: 1
 
 #### `PriorityQueue`
 
-- **Constructor**: `new PriorityQueue<T>(desiredSize: number)`
-  - Creates a new priority queue with the specified concurrency level (`desiredSize`).
+- **Constructor**: `new PriorityQueue<T>(concurrency: number)`
+  - Creates a new priority queue with the specified concurrency level (`concurrency`).
 
 #### Methods
 
@@ -84,8 +84,8 @@ console.log(result1); // Output: 1
   - `isEmpty(): boolean`
     - Returns whether the queue is empty (both processing and waiting queues).
 
-- **`setDesiredSize`**:
-  - `setDesiredSize(size: number): void`
+- **`setConcurrency`**:
+  - `setConcurrency(size: number): void`
     - Sets the desired concurrency level of the queue.
 
 ### Testing
