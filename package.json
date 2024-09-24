@@ -10,7 +10,7 @@
     "build:types": "tsc --project tsconfig.json",
     "build": "bun build ./src/index.ts --minify --outdir=dist",
     "test": "bun test",
-    "prepublishOnly": "npm run build:types && npm run build"
+    "prepublishOnly": "bun run build:types && bun run build"
   },
   "keywords": [
     "priority-queue",
