@@ -1,10 +1,10 @@
 interface QueueItem<T> {
   fn: (...args: any[]) => Promise<T>;
-  args: Parameters<QueueItem<T>['fn']>;
+  args: any[];
   priority: number;
   id: string;
   resolve: (value: T | PromiseLike<T>) => void;
-  reject?: (reason?: any) => void; // Add reject method
+  reject?: (reason?: any) => void;
 }
 
 export class PriorityQueue<T> {
@@ -18,13 +18,12 @@ export class PriorityQueue<T> {
 
   enqueue(
     fn: (...args: any[]) => Promise<T>,
-    args: Parameters<typeof fn>,
+    args: any[],
     priority = 0,
     id: string
   ): Promise<T> {
     return new Promise((resolve, reject) => {
-      const item: QueueItem<T> = { fn, args, priority, id, resolve, reject };
-      this.queue.push(item);
+      this.queue.push({ fn, args, priority, id, resolve, reject });
       this.queue.sort((a, b) => b.priority - a.priority);
       this.processNextItem();
     });
@@ -41,41 +40,35 @@ export class PriorityQueue<T> {
         .fn(...item.args)
         .then((result) => {
           item.resolve(result);
-          this.processingQueue = this.processingQueue.filter((i) => i !== item);
-          this.processNextItem();
+          this.removeFromProcessingQueue(item);
         })
         .catch((error) => {
-          if (item.reject) {
-            item.reject(error); // Propagate the error to the promise
-          }
-          this.processingQueue = this.processingQueue.filter((i) => i !== item);
-          this.processNextItem();
+          item.reject?.(error);
+          this.removeFromProcessingQueue(item);
         });
     }
   }
 
+  private removeFromProcessingQueue(item: QueueItem<T>) {
+    this.processingQueue = this.processingQueue.filter((i) => i !== item);
+    this.processNextItem();
+  }
+
   cancel(id: string): void {
-    // Cancel task from the queue
-    const queuedItem = this.queue.find((item) => item.id === id);
-    if (queuedItem) {
-      this.queue = this.queue.filter((item) => item.id !== id);
-      queuedItem.reject?.(new Error(`Task ${id} was cancelled`));
-    }
+    const cancelItem = (queue: QueueItem<T>[], id: string) => {
+      const index = queue.findIndex((item) => item.id === id);
+      if (index !== -1) {
+        const [item] = queue.splice(index, 1);
+        item.reject?.(new Error(`Task ${id} was cancelled`));
+        return true;
+      }
+      return false;
+    };
 
-    // Cancel task from the processing queue
-    const processingItem = this.processingQueue.find((item) => item.id === id);
-    if (processingItem) {
-      this.processingQueue = this.processingQueue.filter(
-        (item) => item.id !== id
-      );
-
-      // If the task is already running, we need to abort it.
-      // However, since we can't directly abort a promise in JavaScript,
-      // we'll just reject it and let the caller handle it.
-      processingItem.reject?.(new Error(`Task ${id} was cancelled`));
-
-      // Re-process next item if necessary
-      this.processNextItem();
+    if (!cancelItem(this.queue, id)) {
+      if (cancelItem(this.processingQueue, id)) {
+        this.processNextItem();
+      }
     }
   }
 
