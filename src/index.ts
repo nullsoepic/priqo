@@ -72,6 +72,18 @@ export class PriorityQueue<T> {
     }
   }
 
+  isQueued(id: string): boolean {
+    return this.queue.some((item) => item.id === id);
+  }
+
+  isProcessing(id: string): boolean {
+    return this.processingQueue.some((item) => item.id === id);
+  }
+
+  isProcessingOrQueued(id: string): boolean {
+    return this.isQueued(id) || this.isProcessing(id);
+  }
+
   isEmpty(): boolean {
     return this.queue.length === 0 && this.processingQueue.length === 0;
   }
