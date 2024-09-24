@@ -23,6 +23,9 @@ export class PriorityQueue<T> {
     id: string
   ): Promise<T> {
     return new Promise((resolve, reject) => {
+      if (this.isProcessingOrQueued(id)) {
+        reject(new Error(`Task ${id} is already being processed`));
+      }
       this.queue.push({ fn, args, priority, id, resolve, reject });
       this.queue.sort((a, b) => b.priority - a.priority);
       this.processNextItem();
