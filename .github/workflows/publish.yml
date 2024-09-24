@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  test-and-publish:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,9 +28,6 @@ jobs:
         run: bun run prepublishOnly
 
       - name: Publish to npm
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          npm publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        uses: JS-DevTools/npm-publish@v3.1.1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
