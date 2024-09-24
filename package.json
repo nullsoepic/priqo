@@ -1,9 +1,34 @@
 {
   "name": "priqo",
-  "module": "index.ts",
+  "version": "1.0.0",
+  "description": "A asynchronous priority queue implementation",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
+  "scripts": {
+    "build": "bun build",
+    "test": "bun test",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "priority-queue",
+    "data-structure",
+    "typescript"
+  ],
+  "author": "vibing",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nullsoepic/priqo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nullsoepic/priqo/issues"
+  },
+  "homepage": "https://github.com/nullsoepic/priqo#readme",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
